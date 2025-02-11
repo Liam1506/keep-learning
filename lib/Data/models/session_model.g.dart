@@ -17,28 +17,43 @@ class SessionAdapter extends TypeAdapter<Session> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Session(
-      habitName: fields[0] as String,
-      durationInSeconds: fields[1] as int,
-      selectedDays: (fields[2] as List).cast<int>(),
-      strictMode: fields[3] as bool,
-      joker: fields[4] as int,
+      sessionKey: fields[0] as String?,
+      habitName: fields[1] as String,
+      durationInSeconds: fields[2] as int,
+      selectedDays: (fields[3] as List).cast<int>(),
+      strictMode: fields[4] as bool,
+      joker: fields[5] as int,
+      totalSecondsLearned: fields[6] as int,
+      streak: fields[7] as int,
+      timeLeftToday: fields[8] as int,
+      lastResetDate: fields[9] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Session obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(10)
       ..writeByte(0)
-      ..write(obj.habitName)
+      ..write(obj.sessionKey)
       ..writeByte(1)
-      ..write(obj.durationInSeconds)
+      ..write(obj.habitName)
       ..writeByte(2)
-      ..write(obj.selectedDays)
+      ..write(obj.durationInSeconds)
       ..writeByte(3)
-      ..write(obj.strictMode)
+      ..write(obj.selectedDays)
       ..writeByte(4)
-      ..write(obj.joker);
+      ..write(obj.strictMode)
+      ..writeByte(5)
+      ..write(obj.joker)
+      ..writeByte(6)
+      ..write(obj.totalSecondsLearned)
+      ..writeByte(7)
+      ..write(obj.streak)
+      ..writeByte(8)
+      ..write(obj.timeLeftToday)
+      ..writeByte(9)
+      ..write(obj.lastResetDate);
   }
 
   @override

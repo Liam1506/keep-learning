@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keep_learning/Data/Porviders/sessionProvider.dart';
 import 'package:keep_learning/Data/Porviders/themeProvider.dart';
+import 'package:keep_learning/Data/Storage/SessionStore.dart';
+import 'package:keep_learning/Data/models/session_store_data.dart';
 import 'package:keep_learning/Widgets/home/calenderWidget.dart';
 import 'package:keep_learning/Widgets/home/sessionWidget.dart';
 import 'package:provider/provider.dart';
@@ -18,26 +20,42 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     // Load sessions when the screen is initialized
+    finished();
+  }
+
+  finished() async {
     final sessionsProvider = Provider.of<SessionsProvider>(
       context,
       listen: false,
     );
     sessionsProvider.loadSessions();
+    Status checkSessionsFinished =
+        await sessionsProvider.checkSessionsFinished();
+
+    var sessionStoreManager = SessionStore();
+    List<SessionStoreData> sessions =
+        await sessionStoreManager.getAllSessions();
+    print(getCurrentDate());
+    for (SessionStoreData sessionStore in sessions) {
+      print(sessionStore.sessionId);
+    }
+    print("Finished ${checkSessionsFinished.toJson()}");
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final sessionsProvider = Provider.of<SessionsProvider>(context);
+
     // themeProvider.toggleTheme();
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text("Keep Learning"), Text("🔥 4")],
+        ),
+      ),
       body: Column(
         children: [
-          /*SizedBox(height: 60),
-          // Your widget placed above the ListView
-          CalendarWidget(),*/
-
-          // ListView.builder placed below the above widget
           Expanded(
             child:
                 sessionsProvider.sessions.isEmpty
@@ -48,10 +66,17 @@ class _HomeState extends State<Home> {
                       itemCount: sessionsProvider.sessions.length,
                       itemBuilder: (context, index) {
                         final session = sessionsProvider.sessions[index];
+                        session.checkAndResetTimeLeft();
                         return SessionWidget(
                           session: session,
-                          onTap: () {},
-                          onEdit: () {},
+                          onTap: () {
+                            context.go(
+                              '/timer?sessionKey=${session.sessionKey}',
+                            );
+                          },
+                          onEdit: () {
+                            print(sessionsProvider.sessions.length);
+                          },
                           onDelete: () {
                             sessionsProvider.removeSession(index);
                           },

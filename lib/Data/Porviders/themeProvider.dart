@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeData _themeData = ThemeData.dark();
-  bool _isDarkMode = true;
+  late ThemeData _themeData;
+  late bool _isDarkMode;
+  late Color _primaryColor;
 
   ThemeProvider() {
-    _loadTheme();
+    _isDarkMode = true; // Default value
+    _primaryColor = Colors.blue; // Default primary color
+    _themeData = _buildTheme();
   }
 
   ThemeData get themeData => _themeData;
   bool get isDarkMode => _isDarkMode;
+  Color get primaryColor => _primaryColor;
 
   void toggleTheme() async {
     _isDarkMode = !_isDarkMode;
-    _themeData = _isDarkMode ? ThemeData.dark() : ThemeData.light();
+    _themeData = _buildTheme();
 
     notifyListeners();
-    _saveTheme();
   }
 
-  void _saveTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isDarkMode', _isDarkMode);
-  }
+  void setPrimaryColor(Color color) {
+    _primaryColor = color;
+    _themeData = _buildTheme();
 
-  void _loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isDarkMode = prefs.getBool('isDarkMode') ?? true;
-    _themeData = _isDarkMode ? ThemeData.dark() : ThemeData.light();
     notifyListeners();
+  }
+
+  ThemeData _buildTheme() {
+    return ThemeData(
+      brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+      primaryColor: _primaryColor,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: _primaryColor,
+        brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+      ),
+    );
   }
 }

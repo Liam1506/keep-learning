@@ -33,16 +33,19 @@ class _AddSessionState extends State<AddSession> {
       selectedDays: _selectedDays,
       strictMode: _strictMode,
       joker: _joker,
+      timeLeftToday: _selectedDuration.inSeconds,
     );
     saveSession(session);
+
     print("Session Created: ${session.toJson()}");
+    context.go('/');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Session"),
+        title: const Text("Add Habit"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),

@@ -20,8 +20,26 @@ class SessionWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
+        leading: SizedBox(
+          width: 50,
+          child: Center(
+            child: Text(
+              "${((1 - (session.durationLeft.inSeconds / session.duration.inSeconds)) * 100).toInt()}%",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
         title: Text(session.habitName),
-        subtitle: Text("Duration: ${session.duration.inMinutes} minutes"),
+        subtitle: Text(
+          session.durationLeft.inSeconds == 0
+              ? "Finished"
+              : (session.durationLeft.inMinutes > 0
+                      ? "${session.durationLeft.inMinutes} min "
+                      : "") +
+                  (session.durationLeft.inSeconds % 60 > 0
+                      ? "${session.durationLeft.inSeconds % 60} s Left"
+                      : "Left"),
+        ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
             if (value == 'edit') {

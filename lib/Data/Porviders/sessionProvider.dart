@@ -14,8 +14,51 @@ class SessionsProvider with ChangeNotifier {
   // Load all sessions from Hive
   Future<void> loadSessions() async {
     final box = await Hive.openBox<Session>(_boxName);
-    _sessions = box.values.toList();
+    /* _sessions =
+        box.values
+            .where(
+              (session) => session.selectedDays.contains(getCurrentWeekday()),
+            )
+            .toList();*/
+    _sessions = [];
+    print("Length sessions: ${_sessions.length}");
+
     notifyListeners();
+  }
+
+  Session? getSessionById(String sessionKey) {
+    return _sessions.firstWhere((session) => session.sessionKey == sessionKey);
+  }
+
+  Future<Status> checkSessionsFinished() async {
+    final box = await Hive.openBox<Session>(_boxName);
+    _sessions = box.values.toList();
+
+    bool finished = true;
+    int tasksLeft = 0;
+    int tasksFinished = _sessions.length;
+    int timeLeftSeconds = 0;
+    int timeTotal = 0;
+
+    for (Session session in _sessions) {
+      if (session.selectedDays.contains(getCurrentWeekday())) {
+        if (session.timeLeftToday != 0) {
+          finished = false;
+          tasksLeft++;
+          tasksFinished--;
+          timeLeftSeconds = timeLeftSeconds + session.timeLeftToday;
+        }
+        timeTotal = timeTotal + session.durationInSeconds;
+      }
+    }
+    return Status(
+      finished: finished,
+      tasksLeft: tasksLeft,
+      tasksFinished: tasksFinished,
+      timeLeftSeconds: timeLeftSeconds,
+      timeCompleted: timeTotal - timeLeftSeconds,
+      timeTotal: timeTotal,
+    );
   }
 
   // Add a new session
@@ -50,4 +93,49 @@ class SessionsProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+}
+
+class Status {
+  bool finished;
+  int tasksLeft;
+  int tasksFinished;
+  int timeLeftSeconds;
+  int timeCompleted;
+  int timeTotal;
+
+  Status({
+    required this.finished,
+    required this.tasksLeft,
+    required this.tasksFinished,
+    required this.timeLeftSeconds,
+    required this.timeCompleted,
+    required this.timeTotal,
+  });
+
+  factory Status.fromJson(Map<String, dynamic> json) {
+    return Status(
+      finished: json['finished'],
+      tasksLeft: json['tasksLeft'],
+      tasksFinished: json['tasksFinished'],
+      timeLeftSeconds: json['timeLeftSeconds'],
+      timeCompleted: json['timeCompleted'],
+      timeTotal: json['timeTotal'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'finished': finished,
+      'tasksLeft': tasksLeft,
+      'tasksFinished': tasksFinished,
+      'timeLeftSeconds': timeLeftSeconds,
+      'timeCompleted': timeCompleted,
+      'timeTotal': timeTotal,
+    };
+  }
+}
+
+int getCurrentWeekday() {
+  int weekday = DateTime.now().weekday;
+  return (weekday % 7); // Convert Monday (1) to 0, Tuesday (2) to 1, etc.
 }
