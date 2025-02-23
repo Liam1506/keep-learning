@@ -19,17 +19,23 @@ class SessionStoreDataAdapter extends TypeAdapter<SessionStoreData> {
     return SessionStoreData(
       sessionId: fields[0] as String,
       completed: fields[1] as bool,
+      timeLearned: fields[2] as int,
+      timeTotal: fields[3] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, SessionStoreData obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.sessionId)
       ..writeByte(1)
-      ..write(obj.completed);
+      ..write(obj.completed)
+      ..writeByte(2)
+      ..write(obj.timeLearned)
+      ..writeByte(3)
+      ..write(obj.timeTotal);
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:keep_learning/Data/Porviders/sessionProvider.dart';
-import 'package:keep_learning/Data/Storage/SessionStore.dart';
 import 'package:keep_learning/Data/models/session_model.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +27,9 @@ class TimerProvider with ChangeNotifier, WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       print("TIMER STOP");
+
+      SessionsProvider().updateSessionStore();
+
       // App is being paused or exited, stop the timer
       stopTimer();
     }
@@ -54,13 +56,14 @@ class TimerProvider with ChangeNotifier, WidgetsBindingObserver {
           sessionsProvider.sessions.indexOf(currentSession!),
           currentSession!,
         );
-
         if (currentSession!.timeLeftToday == 0) {
-          print("SESSION FINISHED");
-          var sessionStoreManager = SessionStore();
-          sessionStoreManager.finishSession(currentSession!.sessionKey, true);
+          sessionsProvider.updateSessionStore();
+          SessionsProvider().updateSessionStore();
         }
       } else {
+        sessionsProvider.updateSessionStore();
+
+        SessionsProvider().updateSessionStore();
         stopTimer();
       }
     });
@@ -72,6 +75,7 @@ class TimerProvider with ChangeNotifier, WidgetsBindingObserver {
   void stopTimer() {
     _timer?.cancel();
     isRunning = false;
+    SessionsProvider().updateSessionStore();
     notifyListeners();
   }
 

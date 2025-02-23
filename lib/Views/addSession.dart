@@ -18,7 +18,7 @@ class _AddSessionState extends State<AddSession> {
   Duration _selectedDuration = const Duration(hours: 1, minutes: 0);
   List<int> _selectedDays = [0, 1, 2, 3, 4, 5, 6];
   bool _strictMode = false;
-  int _joker = 0;
+  final int _joker = 0;
 
   void _onSelectionChanged(List<int> selectedDays) {
     setState(() {
@@ -103,6 +103,7 @@ class _AddSessionState extends State<AddSession> {
                   ),
                 ),
                 SizedBox(height: 10),
+                /*
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -154,7 +155,12 @@ class _AddSessionState extends State<AddSession> {
                           ),
                     ],
                   ),
-                ),
+                ),*/
+                if (_strictMode)
+                  Text(
+                    "When Strict Mode is enabled, exiting the app or stopping the timer will result in a 5-minute penalty, keeping you disciplined and focused.",
+                    style: TextStyle(color: Colors.red),
+                  ),
               ],
             ),
             SizedBox(

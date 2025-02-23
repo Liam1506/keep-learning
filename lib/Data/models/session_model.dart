@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:keep_learning/Data/Storage/DataStore.dart';
 import 'package:uuid/uuid.dart';
 
 part 'session_model.g.dart'; // Ensure this file is generated using Hive's build runner
@@ -61,7 +60,6 @@ class Session {
 
   /// Checks if a new day has started and resets `timeLeftToday`.
   void checkAndResetTimeLeft() {
-
     DateTime now = DateTime.now();
     if (lastResetDate.day != now.day ||
         lastResetDate.month != now.month ||

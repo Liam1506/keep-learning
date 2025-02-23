@@ -11,5 +11,12 @@ class SessionDaily {
   @HiveField(1)
   final List<SessionStoreData> sessions;
 
-  SessionDaily({required this.date, required this.sessions});
+  @HiveField(2)
+  final int totalMiutesLearned;
+
+  SessionDaily({
+    required this.date,
+    required this.sessions,
+    required this.totalMiutesLearned,
+  });
 }

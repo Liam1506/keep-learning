@@ -19,17 +19,20 @@ class SessionDailyAdapter extends TypeAdapter<SessionDaily> {
     return SessionDaily(
       date: fields[0] as int,
       sessions: (fields[1] as List).cast<SessionStoreData>(),
+      totalMiutesLearned: fields[2] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, SessionDaily obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
-      ..write(obj.sessions);
+      ..write(obj.sessions)
+      ..writeByte(2)
+      ..write(obj.totalMiutesLearned);
   }
 
   @override

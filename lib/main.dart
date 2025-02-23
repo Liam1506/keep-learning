@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:keep_learning/Data/Classes/notificationService.dart';
+import 'package:keep_learning/Data/Porviders/paywallProvider.dart';
 import 'package:keep_learning/Data/Porviders/sessionProvider.dart';
 import 'package:keep_learning/Data/Porviders/themeProvider.dart'; // Import the SessionsProvider
 import 'package:keep_learning/Data/Porviders/timerProvider.dart';
@@ -13,33 +15,45 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive
-  await Hive.initFlutter();
+  print("Initializing...");
 
-  // Register adapters
-  Hive.registerAdapter(SessionAdapter());
+  try {
+    // Initialize Hive
+    print("Initializing Hive...");
+    await Hive.initFlutter();
 
-  Hive.registerAdapter(SessionStoreDataAdapter());
-  Hive.registerAdapter(SessionDailyAdapter());
-  // Open Hive boxes
-  await Hive.openBox<Session>('sessions');
-  final dataStore = DataStore();
-  await dataStore.init();
-  print(dataStore.isRefreshed());
+    // Register adapters
+    print("Registering Hive adapters...");
+    Hive.registerAdapter(SessionAdapter());
+    Hive.registerAdapter(SessionStoreDataAdapter());
+    Hive.registerAdapter(SessionDailyAdapter());
+
+    // Open Hive boxes
+    print("Opening Hive boxes...");
+    await Hive.openBox<Session>('sessions');
+
+    final dataStore = DataStore();
+    await dataStore.init();
+    print("DataStore initialized successfully.");
+
+    // Uncomment to initialize notifications if needed
+    // await NotificationService.init();
+
+    print("Initialization complete.");
+  } catch (e) {
+    print("Error during initialization: $e");
+  }
 
   // Run the app with multiple providers
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => ThemeProvider(),
-        ), // Existing ThemeProvider
-        ChangeNotifierProvider(
-          create: (context) => SessionsProvider(),
-        ), // Add SessionsProvider here
-        ChangeNotifierProvider(create: (context) => TimerProvider()), // Ad
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => SessionsProvider()),
+        ChangeNotifierProvider(create: (context) => TimerProvider()),
+        ChangeNotifierProvider(create: (context) => PaywallProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -50,6 +64,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp.router(
       title: 'Keep Learning',
       routerConfig: router,
